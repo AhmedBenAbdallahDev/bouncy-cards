@@ -1,6 +1,6 @@
-Replication of a bouncy cards effect I saw in the spencergabor.work website
+Replication of a bouncy cards effect I saw in the Specter Gabor website
 
 
-<img src="banner.gif" alt="Banner" width="100%">
+<img src="banner-specter.gif" alt="Banner" width="100%">
 
 
