@@ -18,14 +18,14 @@ export default function Hero() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    // Initial random spawn to trigger the spring return 
+    // Start displaced so the settle animation has somewhere to come from.
     cards.current.forEach(c => {
       const rx = Math.random() * 200 - 100;
       const ry = Math.random() * 200 - 100;
       c.state.x = rx;
       c.state.y = ry;
       c.state.tx = rx;
-      c.state.ty = ry; // hold them there temporarily
+      c.state.ty = ry;
     });
 
     const timeout = setTimeout(() => {
@@ -39,7 +39,6 @@ export default function Hero() {
     const updateCenters = () => {
       cards.current.forEach(c => {
         if (c.el) {
-          // get parent container center
           const rect = c.el.getBoundingClientRect();
           c.state.cx = rect.left + rect.width / 2;
           c.state.cy = rect.top + window.scrollY + rect.height / 2;
@@ -47,7 +46,6 @@ export default function Hero() {
       });
     };
 
-    // Delay center calculation to ensure layout is ready
     const t2 = setTimeout(updateCenters, 800);
 
     const onMove = (e: MouseEvent) => {
@@ -85,29 +83,24 @@ export default function Hero() {
     cards.current.forEach(c => {
       const s = c.state;
 
-      // 1-to-1 exact translation: 
-      // Decaying direct mouse-infused momentum
       s.vx *= 0.9;
       s.vy *= 0.9;
-      
-      // Injecting mouse momentum into target coordinates
+
       s.x += s.vx;
       s.y += s.vy;
-      
-      // The harmonic spring handling the pop-in and auto-return
+
       const stiffness = 0.08;
       const damping = 0.70;
-      
+
       const springForceX = (s.tx - s.x) * stiffness;
       const springForceY = (s.ty - s.y) * stiffness;
-      
+
       s.svx = (s.svx + springForceX) * damping;
       s.svy = (s.svy + springForceY) * damping;
-      
+
       s.x += s.svx;
       s.y += s.svy;
 
-      // Mouse Proximity Repulsion Math (1-to-1 from the original bundle)
       if (s.cx !== 0 && s.cy !== 0 && mouse.current.active) {
         const u = (mx - s.cx) / window.innerWidth * 2;
         const o = (my + window.scrollY - s.cy) / window.innerHeight * 2;
@@ -119,12 +112,10 @@ export default function Hero() {
           s.vy += mvY * k;
         }
       }
-      
-      // DOM Updates (No React state triggers, runs extremely fast at 120fps)
+
       if (c.el) {
         const velDelta = s.vx - s.vy; 
         const rot = c.baseRot - (velDelta * 0.25);
-        // Use translate3d to force hardware acceleration
         const transform = `translate3d(calc(${s.x}px), calc(${s.y}px + ${c.baseY}%), 0) rotate(${rot}deg)`;
         
         const shadow = c.el.querySelector('.shadow-el') as HTMLElement;
